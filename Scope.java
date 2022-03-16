@@ -35,8 +35,11 @@ public class Scope {
         this.node = node;
     }
 
+    static boolean debuglog = false;
+
     public void log(String format, Object... args) {
-        System.out.printf(format, args);
+        if (debuglog)
+            System.out.printf(format, args);
     }
 
     public iObject exec(MethodDeclaration md, iObject instance, iObject... args) throws Throwable {
