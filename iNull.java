@@ -1,22 +1,10 @@
-import java.util.stream.Stream;
-
-import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
-
-public class iClassVirtual extends iClass {
-    ClassOrInterfaceDeclaration x;
-    Scope scope;
-
-    public iClassVirtual(Scope scope, ClassOrInterfaceDeclaration x) {
-        this.scope = scope;
-        scope.obj = this;
-        this.x = x;
-    }
+public class iNull extends iClass {
+    static iNull Null = new iNull();
 
     public String getName() {
-        return x.getNameAsString();
+        throw new UnsupportedOperationException();
     }
 
-    @Override
     public iObject cast(iObject obj) {
         throw new UnsupportedOperationException();
     }
@@ -34,10 +22,7 @@ public class iClassVirtual extends iClass {
     }
 
     public iMethod getMethod(String name, iClass... parameterTypes) throws Throwable {
-        return x.getMethodsByName(name)// Signature(name, Stream.of(parameterTypes).map(c ->
-                                       // c.getName()).toArray(String[]::new))
-                .stream().map(m -> new iMethodVirtual(scope.newChild(m), m)).findAny()
-                .orElseThrow(NoSuchMethodException::new);
+        throw new UnsupportedOperationException();
     }
 
     public iMethod[] getMethods() {
@@ -45,9 +30,7 @@ public class iClassVirtual extends iClass {
     }
 
     public iConstructor getConstructor(iClass... parameterTypes) throws Throwable {
-        return new iConstructorVirtual(scope,
-                x.getConstructorByParameterTypes(Stream.of(parameterTypes).map(x -> x.getName()).toArray(String[]::new))
-                        .orElseThrow(NoSuchMethodException::new));
+        throw new UnsupportedOperationException();
     }
 
     public iConstructor[] getConstructors() {
@@ -64,5 +47,20 @@ public class iClassVirtual extends iClass {
 
     public iObject getItem(iObject a, int i) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj == Null;
+    }
+
+    @Override
+    public String toString() {
+        return "iNullObject";
+    }
+
+    @Override
+    public iClass getClazz() {
+        return this;
     }
 }

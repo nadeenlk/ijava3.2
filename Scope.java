@@ -11,14 +11,20 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.body.VariableDeclarator;
+import com.github.javaparser.ast.expr.ArrayAccessExpr;
+import com.github.javaparser.ast.expr.ArrayCreationExpr;
+import com.github.javaparser.ast.expr.ArrayInitializerExpr;
 import com.github.javaparser.ast.expr.AssignExpr;
 import com.github.javaparser.ast.expr.BinaryExpr;
+import com.github.javaparser.ast.expr.BooleanLiteralExpr;
 import com.github.javaparser.ast.expr.CastExpr;
 import com.github.javaparser.ast.expr.Expression;
 import com.github.javaparser.ast.expr.FieldAccessExpr;
 import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.expr.ObjectCreationExpr;
 import com.github.javaparser.ast.expr.UnaryExpr;
+import com.github.javaparser.ast.stmt.ForEachStmt;
 import com.github.javaparser.ast.stmt.ForStmt;
 import com.github.javaparser.ast.stmt.IfStmt;
 import com.github.javaparser.ast.stmt.Statement;
@@ -77,6 +83,27 @@ public class Scope {
                 xx.getUpdate().forEach(y -> ss.exec2(y));
             }
             return null;
+        } else if (x.isForEachStmt()) {
+            ForEachStmt xx = x.asForEachStmt();
+            Scope ss = newChild(x);
+            if (xx.getVariable().getVariables().size() != 1)
+                throw new UnsupportedOperationException();
+            ss.exec2(xx.getVariable());
+            VariableDeclarator ivd = xx.getVariable().getVariable(0);
+            iObjectVariable iv = ss.getVar(ivd.getName().toString());
+            Object iz = exec2(xx.getIterable()).asWrapped().x;
+            Iterable ii;
+            if (iz.getClass().isArray())
+                ii = new IterableArray(iz);
+            else
+                ii = (Iterable) iz;
+            forloop: for (Object z : ii) {
+                iv.set(new iObjectWrapped(z));
+                if (ss.exec2(xx.getBody()) instanceof iObjectBreak)
+                    break forloop;
+            }
+            return null;
+
         } else if (x.isReturnStmt()) {
             return new iObjectReturn(x.asReturnStmt().getExpression().map(e -> exec2(e)).orElse(null));
         } else if (x.isIfStmt()) {
@@ -112,7 +139,11 @@ public class Scope {
             return new iObjectWrapped(StringEscapeUtils.unescapeJava(x.asStringLiteralExpr().getValue()));
         } else if (x.isFieldAccessExpr()) {
             FieldAccessExpr xx = x.asFieldAccessExpr();
-            return exec2(xx.getScope()).asClass().getField(xx.getNameAsString());
+            iObject obj = exec2(xx.getScope());
+            iClass c = obj.getClazz();
+            if (obj instanceof iClass)
+                obj = new iObjectWrapped(null);
+            return new iFieldObject(obj, c.getField(xx.getNameAsString()));
         } else if (x.isNameExpr()) {
             String xx = x.asNameExpr().getNameAsString();
             iObjectVariable v = getVar(xx);
@@ -144,7 +175,13 @@ public class Scope {
             AssignExpr xx = x.asAssignExpr();
             if (xx.getOperator() != AssignExpr.Operator.ASSIGN)
                 throw new UnsupportedOperationException();
-            return exec2(xx.getTarget()).asVariable().set(exec2(xx.getValue()));
+            iObject v = exec2(xx.getValue());
+            iObject z = exec2(xx.getTarget());
+            if (z instanceof iFieldObject) {
+                ((iFieldObject) z).set(v);
+                return v;
+            }
+            return z.asVariable().set(v);/// return ?????????????????
         } else if (x.isBinaryExpr()) {
             BinaryExpr xx = x.asBinaryExpr();
             iObject l = exec2(xx.getLeft());
@@ -159,6 +196,35 @@ public class Scope {
         } else if (x.isCastExpr()) {
             CastExpr xx = x.asCastExpr();
             return findClass(xx.getType().toString()).cast(exec2(xx.getExpression()));
+        } else if (x.isNullLiteralExpr()) {
+            return iNull.Null;
+        } else if (x.isArrayCreationExpr()) {
+            ArrayCreationExpr xx = x.asArrayCreationExpr();
+            iClass clz = findClass(xx.getElementType().toString());
+            Optional<ArrayInitializerExpr> oi = xx.getInitializer();
+            iObject a;
+            if (oi.isPresent()) {
+                ArrayInitializerExpr i = oi.get();
+                List<iObject> vs = i.getValues().stream().map(v -> exec2(v)).toList();
+                a = clz.newArray(new int[] { vs.size() });
+                for (int j = 0; j < vs.size(); j++) {
+                    clz.setItem(a, j, vs.get(j));
+                }
+            } else {
+                int[] ds = xx.getLevels().stream().mapToInt(l -> {
+                    return (int) exec2(l.getDimension().get()).asWrapped().x;
+                }).toArray();
+                a = clz.newArray(ds);
+            }
+            return a;
+        } else if (x.isArrayAccessExpr()) {
+            ArrayAccessExpr xx = x.asArrayAccessExpr();
+            iObject a = exec2(xx.getName());
+            int i = (int) exec2(xx.getIndex()).asWrapped().x;
+            return new iFieldObject(a, new iFieldArrayElement(a.getClazz(), i));
+        } else if (x.isBooleanLiteralExpr()) {
+            BooleanLiteralExpr xx = x.asBooleanLiteralExpr();
+            return new iObjectWrapped(xx.getValue());
         } else {
             throw new Throwable(String.format("unhandled expression %s %s", x.getClass().getSimpleName(), x));
         }
@@ -328,6 +394,10 @@ public class Scope {
         }
     }
 
+    public RuntimeException throw_err(Object x, Throwable t) {
+        return new RuntimeException("error while running " + x.getClass().getSimpleName() + " " + x, t);
+    }
+
     public iObject exec2(Expression x) {
         try {
             log("[exec] %s(%s)\n", x.getClass().getSimpleName(), x);
@@ -335,7 +405,7 @@ public class Scope {
             log("[exec2] %s(%s)=%s\n", x.getClass().getSimpleName(), x, v);
             return v;
         } catch (Throwable t) {
-            throw new RuntimeException(t);
+            throw throw_err(x, t);
         }
     }
 
@@ -346,7 +416,7 @@ public class Scope {
             log("[exec2] %s(%s)=%s\n", x.getClass().getSimpleName(), x, v);
             return v;
         } catch (Throwable t) {
-            throw new RuntimeException(t);
+            throw throw_err(x, t);
         }
     }
 }

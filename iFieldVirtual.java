@@ -16,4 +16,8 @@ public class iFieldVirtual extends iField {
     public iObject get(iObject i) throws Throwable {
         throw new UnsupportedOperationException();
     }
+
+    public void set(iObject i, iObject v) throws Throwable {
+        throw new UnsupportedOperationException();
+    }
 }

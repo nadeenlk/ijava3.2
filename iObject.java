@@ -8,7 +8,7 @@ public abstract class iObject {
     }
 
     public iObjectWrapped asWrapped() {
-        throw new UnsupportedOperationException();
+        return (iObjectWrapped) this;
     }
 
     public iObjectVariable asVariable() {

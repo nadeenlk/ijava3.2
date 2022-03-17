@@ -17,6 +17,12 @@ public abstract class iClass extends iObject {
 
     public abstract iConstructor[] getConstructors();
 
+    public abstract iObject newArray(int[] dimensions);
+
+    public abstract void setItem(iObject a, int i, iObject v);
+
+    public abstract iObject getItem(iObject a, int i);
+
     @Override
     public iClass getClazz() {
         return this;

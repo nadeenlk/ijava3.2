@@ -25,8 +25,10 @@ public class iMethodWrapped extends iMethod {
     }
 
     public iObject invoke(iObject obj, iObject... args) throws Throwable {
-        return new iObjectWrapped(x.invoke(((iObjectWrapped) obj).x,
-                Stream.of(args).map(arg -> ((iObjectWrapped) arg.asWrapped()).x).toArray(Object[]::new)));
+        //System.out.printf("invoke %s %s\n", obj, Arrays.toString(args));
+        Object obj2 = obj.asWrapped().x;
+        Object[] args2 = Stream.of(args).map(arg -> arg.asWrapped().x).toArray(Object[]::new);
+        return new iObjectWrapped(x.invoke(obj2, args2));
     }
 
     public iClass getReturnType() {

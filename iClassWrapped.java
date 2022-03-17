@@ -1,3 +1,4 @@
+import java.lang.reflect.Array;
 import java.util.stream.Stream;
 
 public class iClassWrapped extends iClass {
@@ -58,6 +59,19 @@ public class iClassWrapped extends iClass {
 
     public iConstructor[] getConstructors() {
         return Stream.of(x.getConstructors()).map(c -> new iConstructorWrapped(c)).toArray(iConstructor[]::new);
+    }
+
+    public iObject newArray(int[] dimensions) {
+        Object a = Array.newInstance(x, dimensions);
+        return new iArrayWrapped(a);
+    }
+
+    public void setItem(iObject a, int i, iObject v) {
+        Array.set(a.asWrapped().x, i, v.asWrapped().x);
+    }
+
+    public iObject getItem(iObject a, int i) {
+        return new iObjectWrapped(Array.get(a.asWrapped().x, i));
     }
 
     @Override
