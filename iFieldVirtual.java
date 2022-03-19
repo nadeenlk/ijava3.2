@@ -2,10 +2,9 @@ import com.github.javaparser.ast.body.VariableDeclarator;
 
 public class iFieldVirtual extends iField {
     VariableDeclarator x;
-    Scope scope;
 
-    public iFieldVirtual(Scope scope, VariableDeclarator x) {
-        this.scope = scope;
+    public iFieldVirtual(Scope parent, VariableDeclarator x) {
+        super(parent, x);
         this.x = x;
     }
 

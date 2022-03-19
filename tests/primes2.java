@@ -1,6 +1,6 @@
 package tests;
 
-public class test_primes2 {
+public class primes2 {
     public static void main(String args[]) {
         int i = 0;
         int num = 0;

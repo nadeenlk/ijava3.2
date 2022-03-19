@@ -1,15 +1,18 @@
 import java.util.stream.Stream;
 
+import com.github.javaparser.ast.Modifier;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 
 public class iClassVirtual extends iClass {
     ClassOrInterfaceDeclaration x;
-    Scope scope;
 
-    public iClassVirtual(Scope scope, ClassOrInterfaceDeclaration x) {
-        this.scope = scope;
-        scope.obj = this;
+    public iClassVirtual(Scope parent, ClassOrInterfaceDeclaration x) {
+        super(parent, x);
         this.x = x;
+        getScope().setClz(this);
+        if (x.getConstructors().size() == 0) {
+            x.addConstructor(Modifier.Keyword.PUBLIC);
+        }
     }
 
     public String getName() {
@@ -36,8 +39,7 @@ public class iClassVirtual extends iClass {
     public iMethod getMethod(String name, iClass... parameterTypes) throws Throwable {
         return x.getMethodsByName(name)// Signature(name, Stream.of(parameterTypes).map(c ->
                                        // c.getName()).toArray(String[]::new))
-                .stream().map(m -> new iMethodVirtual(scope.newChild(m), m)).findAny()
-                .orElseThrow(NoSuchMethodException::new);
+                .stream().map(m -> new iMethodVirtual(getScope(), m)).findAny().orElseThrow(NoSuchMethodException::new);
     }
 
     public iMethod[] getMethods() {
@@ -45,13 +47,14 @@ public class iClassVirtual extends iClass {
     }
 
     public iConstructor getConstructor(iClass... parameterTypes) throws Throwable {
-        return new iConstructorVirtual(scope,
+        return new iConstructorVirtual(getScope(),
                 x.getConstructorByParameterTypes(Stream.of(parameterTypes).map(x -> x.getName()).toArray(String[]::new))
                         .orElseThrow(NoSuchMethodException::new));
     }
 
     public iConstructor[] getConstructors() {
-        throw new UnsupportedOperationException();
+        return x.getConstructors().stream().map(c -> new iConstructorVirtual(getScope(), c))
+                .toArray(iConstructor[]::new);
     }
 
     public iObject newArray(int[] dimensions) {

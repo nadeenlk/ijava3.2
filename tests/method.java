@@ -1,6 +1,6 @@
 package tests;
 
-public class test_method {
+public class method {
     public static void test1() {
         System.out.println("test1();");
     }
@@ -9,13 +9,13 @@ public class test_method {
         System.out.println("test2(" + x + "," + y + ");");
     }
 
-    static class test_class {
+    static class clazz {
         public void test() {
-            System.out.println("test_class.test();");
+            System.out.println("clazz.test();");
         }
 
-        public test_class() {
-            System.out.println("new test_class();");
+        public clazz() {
+            System.out.println("new clazzss();");
         }
     }
 
@@ -28,7 +28,7 @@ public class test_method {
         test2(123, "lol");
         System.out.println("test4=" + test4("lol"));
         System.out.println(new String("abc"));
-        new test_class();
-        new test_class().test();
+        new clazz();
+        new clazz().test();
     }
 }

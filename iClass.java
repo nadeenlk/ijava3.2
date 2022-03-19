@@ -1,4 +1,11 @@
+import com.github.javaparser.ast.Node;
+
 public abstract class iClass extends iObject {
+
+    public iClass(Scope parent, Node node) {
+        super(parent, node);
+    }
+
     public abstract String getName();
 
     public abstract iObject cast(iObject obj);

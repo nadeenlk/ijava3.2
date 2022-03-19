@@ -1,5 +1,10 @@
+import com.github.javaparser.ast.Node;
 
-public abstract class iExecutable {
+public abstract class iExecutable extends iObject {
+    public iExecutable(Scope parent, Node node) {
+        super(parent, node);
+    }
+
     public abstract boolean isVarArgs();
 
     public abstract int getParameterCount();

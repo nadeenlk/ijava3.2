@@ -1,11 +1,10 @@
 import com.github.javaparser.ast.body.MethodDeclaration;
 
 public class iMethodVirtual extends iMethod {
-    Scope scope;
     MethodDeclaration x;
 
-    public iMethodVirtual(Scope scope, MethodDeclaration x) {
-        this.scope = scope;
+    public iMethodVirtual(Scope parent, MethodDeclaration x) {
+        super(parent, x);
         this.x = x;
     }
 
@@ -32,7 +31,7 @@ public class iMethodVirtual extends iMethod {
     }
 
     public iObject invoke(iObject obj, iObject... args) throws Throwable {
-        return scope.exec(x, obj, args);
+        return getScope().getExecutor().exec(x, obj, args);
     }
 
 }

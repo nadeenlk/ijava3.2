@@ -3,8 +3,8 @@ public class iFieldArrayElement extends iFieldWrapped {
     iClass c;
     int i;
 
-    public iFieldArrayElement(iClass c, int i) {
-        super(null);
+    public iFieldArrayElement(Scope s, iClass c, int i) {
+        super(s, null);
         this.c = c;
         this.i = i;
     }

@@ -3,7 +3,8 @@ public class iFieldObject extends iObject {
     iObject x;
     iField f;
 
-    public iFieldObject(iObject x, iField f) {
+    public iFieldObject(Scope s, iObject x, iField f) {
+        super(s, null);
         this.x = x;
         this.f = f;
     }

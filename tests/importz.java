@@ -2,7 +2,7 @@ package tests;
 
 import java.util.*;
 
-public class test_import {
+public class importz {
     public static void main(String[] args) {
         System.out.println(new Scanner(""));
     }

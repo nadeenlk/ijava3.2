@@ -10,7 +10,7 @@ ijava: Java source code interpreter
 flags:
  [-d]               - enable debug logging
 
-eg: ijava tests\test_ip.java - get your ip
+eg: ijava tests\ip.java - get your ip
 ```
 
 dependencies:

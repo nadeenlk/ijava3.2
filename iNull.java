@@ -1,6 +1,10 @@
 public class iNull extends iClass {
     static iNull Null = new iNull();
 
+    protected iNull() {
+        super(ScopeImpl.newRootScope(null), null);
+    }
+
     public String getName() {
         throw new UnsupportedOperationException();
     }
@@ -56,7 +60,7 @@ public class iNull extends iClass {
 
     @Override
     public String toString() {
-        return "iNullObject";
+        return "iNull";
     }
 
     @Override

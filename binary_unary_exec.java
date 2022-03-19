@@ -4,14 +4,20 @@ import com.github.javaparser.ast.expr.BinaryExpr;
 import com.github.javaparser.ast.expr.UnaryExpr;
 
 public class binary_unary_exec {
-    static iClass iDouble = new iClassWrapped(Double.class);
-    static iClass iFloat = new iClassWrapped(Float.class);
-    static iClass iLong = new iClassWrapped(Long.class);
-    static iClass iInteger = new iClassWrapped(Integer.class);
-    static iClass iString = new iClassWrapped(String.class);
+    static iClass iDouble, iFloat, iLong, iInteger, iString, iBool;
+    static {
+        Scope scope =  ScopeImpl.newRootScope(null);
+        iDouble = new iClassWrapped(scope, Double.class);
+        iFloat = new iClassWrapped(scope, Float.class);
+        iLong = new iClassWrapped(scope, Long.class);
+        iInteger = new iClassWrapped(scope, Integer.class);
+        iString = new iClassWrapped(scope, String.class);
+        iBool = new iClassWrapped(scope, Boolean.class);
+    }
 
+    @SuppressWarnings("all")
     public static Object binary_exec(Scope scope, BinaryExpr.Operator op, iObject l, iObject r) throws Throwable {
-        scope.log("binary_exec(op=%s,l=(%s),r=(%s))\n", op, l, r);
+        scope.log("binary_exec(op=%s,l=(%s),r=(%s))", op, l, r);
         if (l instanceof iObjectVariable)
             return binary_exec(scope, op, l.asVariable().get(), r);
         if (r instanceof iObjectVariable)
@@ -30,136 +36,152 @@ public class binary_unary_exec {
         if (lc.equals(iDouble) || rc.equals(iDouble)) {
             double ll = ((Number) l.asWrapped().x).doubleValue();
             double rr = ((Number) r.asWrapped().x).doubleValue();
-            if (op == BinaryExpr.Operator.EQUALS)
+            switch (op) {
+            case EQUALS:
                 return ll == rr;
-            else if (op == BinaryExpr.Operator.NOT_EQUALS)
+            case NOT_EQUALS:
                 return ll != rr;
-            else if (op == BinaryExpr.Operator.LESS)
+            case LESS:
                 return ll < rr;
-            else if (op == BinaryExpr.Operator.GREATER)
+            case GREATER:
                 return ll > rr;
-            else if (op == BinaryExpr.Operator.LESS_EQUALS)
+            case LESS_EQUALS:
                 return ll <= rr;
-            else if (op == BinaryExpr.Operator.GREATER_EQUALS)
+            case GREATER_EQUALS:
                 return ll >= rr;
-            else if (op == BinaryExpr.Operator.PLUS)
+            case PLUS:
                 return ll + rr;
-            else if (op == BinaryExpr.Operator.MINUS)
+            case MINUS:
                 return ll - rr;
-            else if (op == BinaryExpr.Operator.MULTIPLY)
+            case MULTIPLY:
                 return ll * rr;
-            else if (op == BinaryExpr.Operator.DIVIDE)
+            case DIVIDE:
                 return ll / rr;
-            else if (op == BinaryExpr.Operator.REMAINDER)
+            case REMAINDER:
                 return ll % rr;
+            }
         } else if (lc.equals(iFloat) || rc.equals(iFloat)) {
             float ll = ((Number) l.asWrapped().x).floatValue();
             float rr = ((Number) r.asWrapped().x).floatValue();
-            if (op == BinaryExpr.Operator.EQUALS)
+            switch (op) {
+            case EQUALS:
                 return ll == rr;
-            else if (op == BinaryExpr.Operator.NOT_EQUALS)
+            case NOT_EQUALS:
                 return ll != rr;
-            else if (op == BinaryExpr.Operator.LESS)
+            case LESS:
                 return ll < rr;
-            else if (op == BinaryExpr.Operator.GREATER)
+            case GREATER:
                 return ll > rr;
-            else if (op == BinaryExpr.Operator.LESS_EQUALS)
+            case LESS_EQUALS:
                 return ll <= rr;
-            else if (op == BinaryExpr.Operator.GREATER_EQUALS)
+            case GREATER_EQUALS:
                 return ll >= rr;
-            else if (op == BinaryExpr.Operator.PLUS)
+            case PLUS:
                 return ll + rr;
-            else if (op == BinaryExpr.Operator.MINUS)
+            case MINUS:
                 return ll - rr;
-            else if (op == BinaryExpr.Operator.MULTIPLY)
+            case MULTIPLY:
                 return ll * rr;
-            else if (op == BinaryExpr.Operator.DIVIDE)
+            case DIVIDE:
                 return ll / rr;
-            else if (op == BinaryExpr.Operator.REMAINDER)
+            case REMAINDER:
                 return ll % rr;
+            }
         } else if (lc.equals(iLong) || rc.equals(iLong)) {
             long ll = ((Number) l.asWrapped().x).longValue();
             long rr = ((Number) r.asWrapped().x).longValue();
-            if (op == BinaryExpr.Operator.BINARY_OR)
+            switch (op) {
+            case BINARY_OR:
                 return ll | rr;
-            else if (op == BinaryExpr.Operator.BINARY_AND)
+            case BINARY_AND:
                 return ll & rr;
-            else if (op == BinaryExpr.Operator.XOR)
+            case XOR:
                 return ll ^ rr;
-            else if (op == BinaryExpr.Operator.EQUALS)
+            case EQUALS:
                 return ll == rr;
-            else if (op == BinaryExpr.Operator.NOT_EQUALS)
+            case NOT_EQUALS:
                 return ll != rr;
-            else if (op == BinaryExpr.Operator.LESS)
+            case LESS:
                 return ll < rr;
-            else if (op == BinaryExpr.Operator.GREATER)
+            case GREATER:
                 return ll > rr;
-            else if (op == BinaryExpr.Operator.LESS_EQUALS)
+            case LESS_EQUALS:
                 return ll <= rr;
-            else if (op == BinaryExpr.Operator.GREATER_EQUALS)
+            case GREATER_EQUALS:
                 return ll >= rr;
-            else if (op == BinaryExpr.Operator.LEFT_SHIFT)
+            case LEFT_SHIFT:
                 return ll << rr;
-            else if (op == BinaryExpr.Operator.SIGNED_RIGHT_SHIFT)
+            case SIGNED_RIGHT_SHIFT:
                 return ll >> rr;
-            else if (op == BinaryExpr.Operator.UNSIGNED_RIGHT_SHIFT)
+            case UNSIGNED_RIGHT_SHIFT:
                 return ll >>> rr;
-            else if (op == BinaryExpr.Operator.PLUS)
+            case PLUS:
                 return ll + rr;
-            else if (op == BinaryExpr.Operator.MINUS)
+            case MINUS:
                 return ll - rr;
-            else if (op == BinaryExpr.Operator.MULTIPLY)
+            case MULTIPLY:
                 return ll * rr;
-            else if (op == BinaryExpr.Operator.DIVIDE)
+            case DIVIDE:
                 return ll / rr;
-            else if (op == BinaryExpr.Operator.REMAINDER)
+            case REMAINDER:
                 return ll % rr;
+            }
         } else if (lc.equals(iInteger) || rc.equals(iInteger)) {
             int ll = ((Number) l.asWrapped().x).intValue();
             int rr = ((Number) r.asWrapped().x).intValue();
             // System.out.printf("[bin] ll=%s rr=%s\n", ll, rr);
-            if (op == BinaryExpr.Operator.BINARY_OR)
+            switch (op) {
+            case BINARY_OR:
                 return ll | rr;
-            else if (op == BinaryExpr.Operator.BINARY_AND)
+            case BINARY_AND:
                 return ll & rr;
-            else if (op == BinaryExpr.Operator.XOR)
+            case XOR:
                 return ll ^ rr;
-            else if (op == BinaryExpr.Operator.EQUALS)
+            case EQUALS:
                 return ll == rr;
-            else if (op == BinaryExpr.Operator.NOT_EQUALS)
+            case NOT_EQUALS:
                 return ll != rr;
-            else if (op == BinaryExpr.Operator.LESS)
+            case LESS:
                 return ll < rr;
-            else if (op == BinaryExpr.Operator.GREATER)
+            case GREATER:
                 return ll > rr;
-            else if (op == BinaryExpr.Operator.LESS_EQUALS)
+            case LESS_EQUALS:
                 return ll <= rr;
-            else if (op == BinaryExpr.Operator.GREATER_EQUALS)
+            case GREATER_EQUALS:
                 return ll >= rr;
-            else if (op == BinaryExpr.Operator.LEFT_SHIFT)
+            case LEFT_SHIFT:
                 return ll << rr;
-            else if (op == BinaryExpr.Operator.SIGNED_RIGHT_SHIFT)
+            case SIGNED_RIGHT_SHIFT:
                 return ll >> rr;
-            else if (op == BinaryExpr.Operator.UNSIGNED_RIGHT_SHIFT)
+            case UNSIGNED_RIGHT_SHIFT:
                 return ll >>> rr;
-            else if (op == BinaryExpr.Operator.PLUS)
+            case PLUS:
                 return ll + rr;
-            else if (op == BinaryExpr.Operator.MINUS)
+            case MINUS:
                 return ll - rr;
-            else if (op == BinaryExpr.Operator.MULTIPLY)
+            case MULTIPLY:
                 return ll * rr;
-            else if (op == BinaryExpr.Operator.DIVIDE)
+            case DIVIDE:
                 return ll / rr;
-            else if (op == BinaryExpr.Operator.REMAINDER)
+            case REMAINDER:
                 return ll % rr;
+            }
         }
         if (op == BinaryExpr.Operator.EQUALS)
             return Objects.equals(l, r);
+        if (lc.equals(iBool) || rc.equals(iBool)) {
+            boolean ll = (boolean) l.asWrapped().x;
+            boolean rr = (boolean) r.asWrapped().x;
+            switch (op) {
+            case AND:
+                return ll & rr;
+            }
+        }
         throw new UnsupportedOperationException();
     }
 
     public static Object unary_exec(Scope scope, UnaryExpr.Operator op, iObject x) throws Throwable {
-        scope.log("binary_exec(op=%s,x=(%s))\n", op, x);
+        scope.log("binary_exec(op=%s,x=(%s))", op, x);
         iObjectVariable xv = x.asVariable();
         iClass c = xv.getClazz();
         iObjectWrapped p = x.asVariable().get().asWrapped();
@@ -174,14 +196,14 @@ public class binary_unary_exec {
         if (c.equals(iInteger)) {
             int v = (int) p.x;
             if (op == UnaryExpr.Operator.PREFIX_INCREMENT) {
-                return xv.set(new iObjectWrapped(v + 1));
+                return xv.set(new iObjectWrapped(scope, v + 1));
             } else if (op == UnaryExpr.Operator.POSTFIX_INCREMENT) {
-                xv.set(new iObjectWrapped(v + 1));
+                xv.set(new iObjectWrapped(scope, v + 1));
                 return p;
             } else if (op == UnaryExpr.Operator.PREFIX_DECREMENT) {
-                return xv.set(new iObjectWrapped(v - 1));
+                return xv.set(new iObjectWrapped(scope, v - 1));
             } else if (op == UnaryExpr.Operator.POSTFIX_DECREMENT) {
-                xv.set(new iObjectWrapped(v - 1));
+                xv.set(new iObjectWrapped(scope, v - 1));
                 return p;
             }
         }

@@ -1,6 +1,6 @@
 package tests;
 
-public class test_arrays {
+public class arrays {
     public static void main(String[] args) {
         String[] s;
         s = null;

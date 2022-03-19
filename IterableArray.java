@@ -1,7 +1,7 @@
 import java.lang.reflect.Array;
 import java.util.Iterator;
 
-public class IterableArray implements Iterable {
+public class IterableArray implements Iterable<Object> {
     Object x;
 
     public IterableArray(Object x) {
@@ -9,12 +9,12 @@ public class IterableArray implements Iterable {
     }
 
     @Override
-    public Iterator iterator() {
+    public Iterator<Object> iterator() {
         return new ArrayIterator(x);
     }
 }
 
-class ArrayIterator implements Iterator {
+class ArrayIterator implements Iterator<Object> {
     Object x;
     int i, l;
 

@@ -1,22 +1,21 @@
 public class iObjectVariable extends iObject {
-    Scope scope;
     iClass type;
     String name;
     iObject value;
 
-    public iObjectVariable(Scope scope, iClass type, String name) {
-        this.scope = scope;
+    public iObjectVariable(Scope parent, iClass type, String name) {
+        super(parent, null);
         this.type = type;
         this.name = name;
     }
 
     public iObject set(iObject value) {
-        scope.log("[var] set %s=%s\n", name, value);
+        getScope().log("[var] set %s=%s", name, value);
         return this.value = value;
     }
 
     public iObject get() {
-        scope.log("[var] get %s=%s\n", name, value);
+        getScope().log("[var] get %s=%s", name, value);
         return value;
     }
 

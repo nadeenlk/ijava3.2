@@ -3,12 +3,13 @@ import java.lang.reflect.Field;
 public class iFieldWrapped extends iField {
     Field x;
 
-    public iFieldWrapped(Field x) {
+    public iFieldWrapped(Scope parent, Field x) {
+        super(parent, null);
         this.x = x;
     }
 
     public iClass getType() {
-        return new iClassWrapped(x.getType());
+        return new iClassWrapped(getScope(), x.getType());
     }
 
     @Override
@@ -21,7 +22,7 @@ public class iFieldWrapped extends iField {
     }
 
     public iObject get(iObject i) throws Throwable {
-        return new iObjectWrapped(x.get(i.asWrapped().x));
+        return new iObjectWrapped(getScope(), x.get(i.asWrapped().x));
     }
 
     public void set(iObject i, iObject v) throws Throwable {

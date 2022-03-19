@@ -1,9 +1,8 @@
 public class iObjectVirtual extends iObject {
-    Scope scope;
     iClassVirtual clz;
 
-    public iObjectVirtual(Scope scope, iClassVirtual clz) {
-        this.scope = scope;
+    public iObjectVirtual(Scope parent, iClassVirtual clz) {
+        super(parent, null);
         this.clz = clz;
     }
 

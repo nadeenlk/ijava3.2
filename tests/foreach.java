@@ -2,7 +2,8 @@ package tests;
 
 import java.util.LinkedList;
 
-public class test_foreach {
+public class foreach {
+    @SuppressWarnings("all")
     public static void main(String[] args) {
         LinkedList i = new LinkedList<>();
         i.add("lol");

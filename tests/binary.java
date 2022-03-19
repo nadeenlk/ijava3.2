@@ -1,6 +1,6 @@
 package tests;
 
-public class test_binary {
+public class binary {
     public static void main(String[] args) {
         System.out.println("lol");
         System.out.println(1 + 1);

@@ -4,10 +4,9 @@ import com.github.javaparser.ast.body.ConstructorDeclaration;
 
 public class iConstructorVirtual extends iConstructor {
     ConstructorDeclaration x;
-    Scope scope;
 
-    public iConstructorVirtual(Scope scope, ConstructorDeclaration x) {
-        this.scope = scope;
+    public iConstructorVirtual(Scope parent, ConstructorDeclaration x) {
+        super(parent, x);
         this.x = x;
     }
 
@@ -27,14 +26,13 @@ public class iConstructorVirtual extends iConstructor {
     }
 
     public iObject newInstance(iObject... args) throws Throwable {
-        Scope s = scope.newChild(getDeclaringClassNode());
-        iObjectVirtual i = new iObjectVirtual(s, new iClassVirtual(scope.parent, getDeclaringClassNode()));
-        s.exec(x, i, args);
+        iObjectVirtual i = new iObjectVirtual(getScope(), new iClassVirtual(getScope(), getDeclaringClassNode()));
+        getScope().getExecutor().exec(x, i, args);
         return i;
     }
 
     public iClass getDeclaringClass() {
-        return new iClassVirtual(scope.parent, getDeclaringClassNode());
+        return new iClassVirtual(getScope(), getDeclaringClassNode());
     }
 
     public ClassOrInterfaceDeclaration getDeclaringClassNode() {

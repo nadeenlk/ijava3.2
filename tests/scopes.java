@@ -1,6 +1,6 @@
 package tests;
 
-public class test_scopes {
+public class scopes {
     public static void main(String[] args) {
         int x = 1;
         {

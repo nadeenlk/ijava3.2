@@ -11,16 +11,16 @@ public class Main {
         if (args.length >= 1) {
             if (args.length >= 2) {
                 if (args[0].equals("-d")) {
-                    Scope.debuglog = true;
+                    ScopeImpl.debuglog = true;
                     args = Arrays.copyOfRange(args, 1, args.length);
                 }
             }
             if (args.length == 1 && args[0].equals("tests")) {
                 for (Path p : Files.list(Path.of("tests")).toList()) {
                     String fn = p.getFileName().toString();
-                    if (fn.startsWith("test_") && fn.endsWith(".java")) {
+                    if (fn.endsWith(".java")) {
                         try {
-                            if (fn == "test_args.java")
+                            if (fn == "args.java")
                                 run_file(p, new String[] { "arg1", "arg2", "arg3" });
                             else
                                 run_file(p, new String[0]);
@@ -47,9 +47,9 @@ public class Main {
         System.out.println(" ijava [-d] tests        - run tests");
         System.out.println();
         System.out.println("flags:");
-        System.out.println(" [-d]               - enable debug logging");
+        System.out.println(" [-d]                    - enable debug logging");
         System.out.println();
-        System.out.println("eg: ijava tests\\test_ip.java - get your ip");
+        System.out.println("eg: ijava tests\\ip.java - get your ip");
         System.out.println("Nadeen Udantha udanthan@gmail.com");
         System.out.println();
     }
@@ -59,8 +59,9 @@ public class Main {
         n = n.substring(0, n.length() - ".java".length());
         CompilationUnit cu = StaticJavaParser.parse(path);
         cu.getImports().addFirst(new ImportDeclaration("java.lang", false, true));
-        iObjectWrapped argz = new iObjectWrapped(args);
-        new Scope(null, cu).findClass(n).getMethod("main", new iClassWrapped(String[].class)).invoke(null, argz);
+        Scope scope = ScopeImpl.newRootScope(cu);
+        iObjectWrapped argz = new iObjectWrapped(scope, args);
+        scope.findClass(n).getMethod("main", new iClassWrapped(scope, String[].class)).invoke(null, argz);
     }
 
     public static void main(String[] args) throws Throwable {

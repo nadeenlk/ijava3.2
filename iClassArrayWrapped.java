@@ -1,13 +1,13 @@
 
 public class iClassArrayWrapped extends iClassWrapped {
-    public iClassArrayWrapped(iClassWrapped x) {
-        super(x.x);
+    public iClassArrayWrapped(Scope s, iClassWrapped x) {
+        super(s, x.x);
     }
 
     @Override
     public iField getField(String name) throws Throwable {
         if (name.equals("length")) {
-            return new iFieldArrayLength();
+            return new iFieldArrayLength(getScope());
         }
         throw new NoSuchMethodException();
     }

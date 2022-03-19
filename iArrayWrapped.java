@@ -3,13 +3,13 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class iArrayWrapped extends iObjectWrapped {
-    public iArrayWrapped(Object x) {
-        super(x);
+    public iArrayWrapped(Scope s, Object x) {
+        super(s, x);
     }
 
     @Override
     public iClass asClass() throws Throwable {
-        return new iClassArrayWrapped(new iClassWrapped(x.getClass()));
+        return new iClassArrayWrapped(getScope(), new iClassWrapped(getScope(), x.getClass()));
     }
 
     @Override

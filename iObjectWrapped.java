@@ -1,7 +1,8 @@
 public class iObjectWrapped extends iObject {
     Object x;
 
-    public iObjectWrapped(Object x) {
+    public iObjectWrapped(Scope parent, Object x) {
+        super(parent, null);
         this.x = x;
     }
 
@@ -13,7 +14,7 @@ public class iObjectWrapped extends iObject {
     }
 
     public iClass getClazz() {
-        return new iClassWrapped(x.getClass());
+        return new iClassWrapped(getScope(), x.getClass());
     }
 
     public iObjectWrapped asWrapped() {

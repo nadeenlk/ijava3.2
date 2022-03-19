@@ -1,4 +1,16 @@
+import com.github.javaparser.ast.Node;
+
 public abstract class iObject {
+    Scope current_scope;
+
+    public iObject(Scope parent, Node node) {
+        this.current_scope = parent.getChild(node);
+    }
+
+    public Scope getScope() {
+        return current_scope;
+    }
+
     public iClass asClass() throws Throwable {
         return (iClass) this;
     }
@@ -24,7 +36,7 @@ public abstract class iObject {
             if (this instanceof iField)
                 return asField().get(null);
             else if (this instanceof iClass)
-                return new iObjectWrapped(null);
+                return new iObjectWrapped(getScope(), null);
             else if (this instanceof iObjectVariable)
                 return asVariable().get();
             else
