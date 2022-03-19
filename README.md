@@ -8,7 +8,7 @@ ijava: Java source code interpreter
  ijava [-d] tests        - run tests
 
 flags:
- [-d]               - enable debug logging
+ [-d]                    - enable debug logging
 
 eg: ijava tests\ip.java - get your ip
 ```
