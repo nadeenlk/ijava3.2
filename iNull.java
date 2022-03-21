@@ -1,3 +1,4 @@
+
 public class iNull extends iClass {
     static iNull Null = new iNull();
 

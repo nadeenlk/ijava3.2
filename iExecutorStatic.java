@@ -30,7 +30,7 @@ public class iExecutorStatic {
             throws Throwable {
         int i = 0;
         for (Parameter p : md.getParameters())
-            scope.getVars().declare(scope.findClass(p.getType().toString()), p.getNameAsString()).set(args[i++]);
+            scope.getVars().declare(scope.findClass(p.getType()), p.getNameAsString()).set(args[i++]);
         return exec.exec(md.getBody().get());
     }
 
@@ -138,14 +138,14 @@ public class iExecutorStatic {
                 throw new UnsupportedOperationException();
             List<iObject> args = xx.getArguments().stream().map(arg -> exec.exec(arg)).toList();
             return iExecutableMatcher
-                    .getExecutable(scope, exec.exec(xx.getType().getNameAsExpression()).getClazz(), null,
+                    .getExecutable(scope, scope.findClass(xx.getType()), null,
                             args.stream().map(arg -> arg.getClazz()).toArray(iClass[]::new))
                     .asConstructor().newInstance(args.stream().map(arg -> arg.asExecArg()).toArray(iObject[]::new));
         } else if (x.isVariableDeclarationExpr()) {
             x.asVariableDeclarationExpr().getVariables().forEach(y -> {
                 iClass clz;
                 try {
-                    clz = scope.findClass(y.getType().toString());
+                    clz = scope.findClass(y.getType());
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
@@ -214,6 +214,12 @@ public class iExecutorStatic {
         } else if (x.isBooleanLiteralExpr()) {
             BooleanLiteralExpr xx = x.asBooleanLiteralExpr();
             return new iObjectWrapped(scope, xx.getValue());
+        } else if (x.isClassExpr()) {
+            iClass clz = scope.findClass(x.asClassExpr().getType());
+            if (!(clz instanceof iClassWrapped))
+                throw new UnsupportedOperationException();
+            Class<?> c = ((iClassWrapped) clz).x;
+            return new iObjectWrapped(scope, c);
         } else {
             throw new Throwable(String.format("unhandled expression %s %s", x.getClass().getSimpleName(), x));
         }

@@ -2,7 +2,7 @@ import java.util.Arrays;
 
 public class iExecutableMatcher {
 
-    public static iExecutable getExecutable2(Scope scope, iClass c, String n, iClass[] cx) throws Throwable {
+    public static iExecutable getExecutableImpl(Scope scope, iClass c, String n, iClass[] cx) throws Throwable {
         boolean isMethod = n != null;
         try {
             if (isMethod)
@@ -10,7 +10,7 @@ public class iExecutableMatcher {
             else
                 return c.getConstructor(cx);
         } catch (NoSuchMethodException e) {
-            // log("[err] %s", e);
+            scope.log("[err] %s", e);
         }
         for (iExecutable e : (isMethod ? c.getMethods() : c.getConstructors())) {
             if (!isMethod || e.asMethod().getName().equals(n)) {
@@ -21,7 +21,7 @@ public class iExecutableMatcher {
         throw new NoSuchMethodException(n);
     }
 
-    public static boolean getExecutableMatches2(boolean isVarArgs, iClass[] dst, iClass[] src) {
+    public static boolean getExecutableMatchesImpl(boolean isVarArgs, iClass[] dst, iClass[] src) {
         if (isVarArgs) {
             // if (src.length < dst.length - 1)return false;
             for (int i = 0; i < dst.length - 1; i++) {
@@ -53,7 +53,7 @@ public class iExecutableMatcher {
         NoSuchMethodException t = null;
         try {
             scope.log("[getExecutable] %s.%s(%s)", c, n, Arrays.toString(cx));
-            x = getExecutable2(scope, c, n, cx);
+            x = getExecutableImpl(scope, c, n, cx);
         } catch (NoSuchMethodException tt) {
             t = tt;
         } catch (Throwable tt) {
@@ -68,7 +68,7 @@ public class iExecutableMatcher {
     public static boolean getExecutableMatches(Scope scope, boolean isVarArgs, iClass[] dst, iClass[] src) {
         scope.log("[getExecutableMatches] isVarArgs=%b (%s)<--(%s)", isVarArgs, Arrays.toString(dst),
                 Arrays.toString(src));
-        boolean b = getExecutableMatches2(isVarArgs, dst, src);
+        boolean b = getExecutableMatchesImpl(isVarArgs, dst, src);
         scope.log("[getExecutableMatches2] isVarArgs=%b (%s)<--(%s): %s", isVarArgs, Arrays.toString(dst),
                 Arrays.toString(src), b);
         return b;

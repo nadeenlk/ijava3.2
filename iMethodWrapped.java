@@ -22,7 +22,7 @@ public class iMethodWrapped extends iMethod {
     }
 
     public iClass[] getParameterTypes() {
-        return Stream.of(x.getParameterTypes()).map(p -> new iClassWrapped(getScope(), p)).toArray(iClass[]::new);
+        return GenericTypes.getParameterTypes(getScope(), x);
     }
 
     public iObject invoke(iObject obj, iObject... args) throws Throwable {
@@ -33,7 +33,7 @@ public class iMethodWrapped extends iMethod {
     }
 
     public iClass getReturnType() {
-        return new iClassWrapped(getScope(), x.getReturnType());
+        return GenericTypes.getReturnType(getScope(), x);
     }
 
     @Override

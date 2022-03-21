@@ -10,6 +10,7 @@ import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.EmptyStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.TypeParameter;
 
 public class ScopeImpl implements Scope {
@@ -78,8 +79,8 @@ public class ScopeImpl implements Scope {
              * System.out.println(Arrays.stream(String.format(format,
              * args).split("\n")).map(s -> p + s) .collect(Collectors.joining("\n")));
              */
-            // System.out.printf(format + "\n", args);
-            System.out.println(String.format(format, args) + ": " + this);
+            System.out.printf(format + "\n", args);
+            // System.out.println(String.format(format, args) + ": " + this);
         }
     }
 
@@ -175,6 +176,10 @@ public class ScopeImpl implements Scope {
         if (hasParent())
             return getParent().findClass(name);
         return new iClassWrapped(this, clzForName(name));
+    }
+
+    public iClass findClass(Type name) throws ClassNotFoundException {
+        return findClass(name.toString());
     }
 
     public iClass findClass(String name) throws ClassNotFoundException {
