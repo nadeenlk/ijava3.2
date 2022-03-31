@@ -9,5 +9,4 @@ public class new_main {
     public void main2(String[] args) {
         System.out.println("main2()");
     }
-
 }

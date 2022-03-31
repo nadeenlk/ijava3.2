@@ -18,7 +18,7 @@ public class iConstructorWrapped extends iConstructor {
     }
 
     public iClass[] getParameterTypes() {
-        return Stream.of(x.getParameterTypes()).map(p -> new iClassWrapped(getScope(), p)).toArray(iClass[]::new);
+        return Stream.of(x.getParameterTypes()).map(p -> iClassWrapped.from(getScope(), p)).toArray(iClass[]::new);
     }
 
     public iObject newInstance(iObject... args) throws Throwable {
@@ -28,6 +28,6 @@ public class iConstructorWrapped extends iConstructor {
     }
 
     public iClass getDeclaringClass() {
-        return new iClassWrapped(getScope(), x.getDeclaringClass());
+        return iClassWrapped.from(getScope(), x.getDeclaringClass());
     }
 }

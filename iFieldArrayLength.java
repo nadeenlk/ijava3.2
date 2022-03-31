@@ -7,7 +7,7 @@ public class iFieldArrayLength extends iFieldWrapped {
 
     @Override
     public iClass getType() {
-        return new iClassWrapped(getScope(), int.class);
+        return iClassWrapped.from(getScope(), int.class);
     }
 
     @Override

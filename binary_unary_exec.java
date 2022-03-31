@@ -6,13 +6,13 @@ import com.github.javaparser.ast.expr.UnaryExpr;
 public class binary_unary_exec {
     static iClass iDouble, iFloat, iLong, iInteger, iString, iBool;
     static {
-        Scope scope =  ScopeImpl.newRootScope(null);
-        iDouble = new iClassWrapped(scope, Double.class);
-        iFloat = new iClassWrapped(scope, Float.class);
-        iLong = new iClassWrapped(scope, Long.class);
-        iInteger = new iClassWrapped(scope, Integer.class);
-        iString = new iClassWrapped(scope, String.class);
-        iBool = new iClassWrapped(scope, Boolean.class);
+        Scope scope = ScopeImpl.newRootScope(null);
+        iDouble = iClassWrapped.from(scope, Double.class);
+        iFloat = iClassWrapped.from(scope, Float.class);
+        iLong = iClassWrapped.from(scope, Long.class);
+        iInteger = iClassWrapped.from(scope, Integer.class);
+        iString = iClassWrapped.from(scope, String.class);
+        iBool = iClassWrapped.from(scope, Boolean.class);
     }
 
     @SuppressWarnings("all")

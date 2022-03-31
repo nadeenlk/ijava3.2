@@ -16,6 +16,10 @@ public interface Scope {
 
     public iExecutor getExecutor();
 
+    public iClass findClassExt(String name) throws Throwable;
+
+    public iClass findClassLocal(String name) throws Throwable;
+
     public iClass findClass(String name) throws ClassNotFoundException;
 
     public iClass findClass(Type name) throws ClassNotFoundException;

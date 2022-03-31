@@ -21,9 +21,9 @@ public class arrays {
         for (int i = 0; i < s.length; i++) {
             System.out.println(s[i]);
         }
-        /*
-         * s = new String[] { "a", "b", "c", "d" }; for (String z : s) {
-         * System.out.println(z); }
-         */
+        s = new String[] { "a", "b", "c", "d" };
+        for (String z : s) {
+            System.out.println(z);
+        }
     }
 }

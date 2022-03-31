@@ -19,7 +19,7 @@ public class GenericTypes {
 
     public static iClassWrapped resolveType2(Scope scope, Type x) {
         if (x instanceof Class) {
-            return new iClassWrapped(scope, (Class<?>) x);
+            return iClassWrapped.from(scope, (Class<?>) x);
         } else if (x instanceof ParameterizedType) {
             ParameterizedType xx = (ParameterizedType) x;
             /*System.out.println(xx);
@@ -57,7 +57,7 @@ public class GenericTypes {
     }
 
     public static iClassWrapped resolveType(Scope scope, Type x) {
-        scope.log("[GenericTypes] resolveType %s", x);
+        scope.log("[GenericTypes] resolveType %s %s", x, x.getClass().getSimpleName());
         iClassWrapped v = resolveType2(scope, x);
         scope.log("[GenericTypes] resolveType2 %s=%s", x, v);
         return v;

@@ -12,7 +12,6 @@ public class primes {
                 }
             }
             if (counter == 2) {
-                // Appended the Prime number to the String
                 System.out.print(i);
                 System.out.print(" ");
             }

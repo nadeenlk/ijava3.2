@@ -1,7 +1,8 @@
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
@@ -104,17 +105,16 @@ public class iExecutorStatic {
         if (x.isMethodCallExpr()) {
             MethodCallExpr xx = x.asMethodCallExpr();
             List<iObject> args = xx.getArguments().stream().map(arg -> exec.exec(arg)).toList();
+            List<iClass> argcs = args.stream().map(y -> y.getClazz()).toList();
             Optional<Expression> ss = xx.getScope();
             if (ss.isEmpty()) {
-                iMethod m = scope.findExecutable(xx.getNameAsString(),
-                        Arrays.asList(args.stream().map(y -> y.getClazz()).toArray(iClass[]::new))).asMethod();
+                iMethod m = scope.findExecutable(xx.getNameAsString(), argcs).asMethod();
                 return exec.exec(m, new iObjectWrapped(scope, null), args.toArray(iObject[]::new));
             }
             iObject i = exec.exec(ss.get());
-            iMethod m = iExecutableMatcher.getExecutable(scope, i.getClazz(), xx.getNameAsString(),
-                    args.stream().map(arg -> arg.getClazz()).toArray(iClass[]::new)).asMethod();
+            iMethod m = iExecutableMatcher
+                    .getExecutable(scope, i.getClazz(), xx.getNameAsString(), argcs.toArray(iClass[]::new)).asMethod();
             iObject ii = i.asExecArg();
-            // System.out.printf("\n\n\n[boi] i=%s ii=%s\n\n\n\n", i, ii);
             return exec.exec(m, ii, args.toArray(iObject[]::new));
         } else if (x.isStringLiteralExpr()) {
             return new iObjectWrapped(scope, StringEscapeUtils.unescapeJava(x.asStringLiteralExpr().getValue()));
@@ -169,7 +169,7 @@ public class iExecutorStatic {
                 ((iFieldObject) z).set(v);
                 return v;
             }
-            return z.asVariable().set(v);/// return ?????????????????
+            return z.asVariable().set(v);// return ?????????????????
         } else if (x.isBinaryExpr()) {
             BinaryExpr xx = x.asBinaryExpr();
             iObject l = exec.exec(xx.getLeft());
@@ -184,12 +184,12 @@ public class iExecutorStatic {
             return exec.exec(xx);
         } else if (x.isCastExpr()) {
             CastExpr xx = x.asCastExpr();
-            return scope.findClass(xx.getType().toString()).cast(exec.exec(xx.getExpression()));
+            return scope.findClass(xx.getType()).cast(exec.exec(xx.getExpression()));
         } else if (x.isNullLiteralExpr()) {
             return iNull.Null;
         } else if (x.isArrayCreationExpr()) {
             ArrayCreationExpr xx = x.asArrayCreationExpr();
-            iClass clz = scope.findClass(xx.getElementType().toString());
+            iClass clz = scope.findClass(xx.getElementType());
             Optional<ArrayInitializerExpr> oi = xx.getInitializer();
             iObject a;
             if (oi.isPresent()) {
@@ -227,13 +227,37 @@ public class iExecutorStatic {
 
     public static iObject exec(Scope scope, iExecutor exec, iExecutable e, iObject obj, iObject[] args)
             throws Throwable {
+        //scope.log("[exec] %s %s %s", obj, e, Arrays.toString(args));
         if (e.isVarArgs()) {
             if (e instanceof iConstructorWrapped || e instanceof iMethodWrapped) {
                 int i = e.getParameterCount();
-                iObject[] args2 = Arrays.copyOf(args, i);
-                Object[] args3 = Stream.of(Arrays.copyOfRange(args, i - 1, args.length - i + 2))
-                        .map(p -> p.asWrapped().x).toArray(Object[]::new);
-                args2[i - 1] = new iObjectWrapped(scope, args3);
+                iObject[] args2 = new iObject[i];
+                int z = 0;
+                while (z < i - 1)
+                    args2[z++] = args[i];
+                iClassWrapped clz = (iClassWrapped) e.getParameterTypes()[i - 1];
+                List<Object> xs = new ArrayList<>();
+                if (args.length > z)
+                    while (z < args.length)
+                        xs.add(args[z++].asWrapped().x);
+                iObject v = null;
+                if (xs.size() == -1) {
+                    //Object x = xs.get(0);
+                    throw new UnsupportedOperationException();
+                    /*if (x.getClazz() instanceof iClassArrayWrapped) {
+                        if (clz.isAssignableFrom(x.getClazz().getComponentType()))
+                            v = x;
+                    }*/
+                }
+                if (v == null) {
+                    Object vv = Array.newInstance(clz.x, xs.size());
+                    for (z = 0; z < xs.size(); z++) {
+                        Array.set(vv, z, xs.get(z));
+                    }
+                    v = new iObjectWrapped(scope, vv);
+                }
+                scope.log("[varargs] %s", args, v);
+                args2[i - 1] = v;
                 args = args2;
             } else
                 throw new UnsupportedOperationException();

@@ -1,9 +1,9 @@
+import java.lang.reflect.Array;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
 
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
@@ -14,7 +14,8 @@ import com.github.javaparser.ast.type.Type;
 import com.github.javaparser.ast.type.TypeParameter;
 
 public class ScopeImpl implements Scope {
-    Scope parent;
+    JavaFileiClassLoader loader;
+    ScopeImpl parent;
     Node node;
     iClassVirtual iclzv;
     VarBlock vars;
@@ -25,6 +26,14 @@ public class ScopeImpl implements Scope {
             throw new UnsupportedOperationException();
         this.node = node;
         vars = new_var_block ? (parent == null ? new VarBlock(null, this) : parent.vars.getChild(this)) : parent.vars;
+    }
+
+    public JavaFileiClassLoader getClassLoader() {
+        if (loader != null)
+            return loader;
+        if (parent == null)
+            throw new RuntimeException("wtf?");
+        return parent.getClassLoader();
     }
 
     public void setClz(iClassVirtual clz) {
@@ -104,29 +113,97 @@ public class ScopeImpl implements Scope {
         throw new NoSuchMethodException(name);
     }
 
-    public Class<?> clzForName(String name) throws ClassNotFoundException {
-        log("[class] forName %s", name);
-        Class<?> clz = Class.forName(name);
-        log("[class] forName %s=%s", name, clz);
+    @FunctionalInterface
+    public interface FindClassWTFZ {
+        iClass apply(String name) throws Throwable;
+    }
+
+    iClass findClassWTF2(String name, FindClassWTFZ f) throws Throwable {
+        Class<?> clz = Primitives.findClass(name);
+        if (clz != null)
+            return iClassWrapped.from(this, clz);
+        if (name.endsWith("[]")) {
+            clz = ((iClassWrapped) f.apply(name.substring(0, name.length() - 2))).x;
+            clz = Array.newInstance(clz, 0).getClass();
+            return new iClassArrayWrapped(this, iClassWrapped.from(this, clz));
+        }
+        if (name.endsWith(">")) {
+            return f.apply(name.substring(0, name.lastIndexOf('<')));
+        }
+        throw new ClassNotFoundException(name);
+    }
+
+    iClass findClassWTF(String name, FindClassWTFZ f) throws Throwable {
+        log("[findClassWTF] %s", name);
+        iClass c = findClassWTF2(name, f);
+        log("[findClassWTF2] %s=%s", name, f);
+        return c;
+    }
+
+    iClass findClassImports(String name) throws Throwable {
+        log("[findClassImports] %s", name);
+        if (!(node instanceof CompilationUnit))
+            return parent.findClassImports(name);
+        try {
+            return findClassWTF(name, this::findClassImports);
+        } catch (ClassNotFoundException e) {
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
+        CompilationUnit cu = (CompilationUnit) node;
+        iClass clz = cu.getImports().stream().map(i -> {
+            if (i.isStatic())
+                throw new UnsupportedOperationException();
+            try {
+                String n = i.getNameAsString();
+                log("[import] (%s) name=%s", i.toString().trim(), name);
+                if (i.isAsterisk()) {
+                    //System.out.printf("(%s).startsWith(%s)=%s\n", name, i.getNameAsString(),name.startsWith(i.getNameAsString()));
+                    //if (!name.startsWith(i.getNameAsString()))
+                    if (cu.getImports().stream().allMatch(ii -> !name.startsWith(ii.getNameAsString())))
+                        return findClassExt(n + "." + name);
+                } else if (n.endsWith("." + name))
+                    return findClassExt(n);
+            } catch (ClassNotFoundException e) {
+            } catch (Throwable t) {
+                throw new RuntimeException(t);
+            }
+            return null;
+        }).filter(c -> c != null).findFirst().orElseThrow(ClassNotFoundException::new);
+        log("[findClassImports2] %s=%s", name, clz);
         return clz;
     }
 
-    public iClass findClass2(String name) throws Throwable {
-        log("[findClass] %s %s", name, node.getClass().getSimpleName());
-        {
-            Class<?> clz = Primitives.findClass(name);
-            if (clz != null)
-                return new iClassWrapped(this, clz);
+    public iClass findClassExt(String name) throws ClassNotFoundException {
+        try {
+            return findClassWTF(name, this::findClassExt);
+        } catch (ClassNotFoundException e) {
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
         }
-        if (name.endsWith("[]")) {
-            return new iClassArrayWrapped(this, (iClassWrapped) findClass(name.substring(0, name.length() - 2)));
+        try {
+            return findClassImports(name);
+        } catch (ClassNotFoundException e) {
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
         }
-        if (name.endsWith(">")) {
-            return findClass(name.substring(0, name.lastIndexOf('<')));
+        try {
+            return getClassLoader().findClassExt(name);
+        } catch (ClassNotFoundException e) {
+            throw e;
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
         }
-        // if
-        // (!Pattern.matches("([a-zA-Z_$][a-zA-Z\\d_$]*\\.)*[a-zA-Z_$][a-zA-Z\\d_$]*",
-        // name))throw new ClassNotFoundException(name);
+    }
+
+    public iClass findClassLocal(String name) throws Throwable {
+        try {
+            return findClassWTF(name, this::findClassLocal);
+        } catch (ClassNotFoundException e) {
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
+        log("[findClassLocal] %s %s", name, node.getClass().getSimpleName());
         if (node instanceof CompilationUnit || node instanceof ClassOrInterfaceDeclaration) {
             ClassOrInterfaceDeclaration cid = node.stream()
                     .filter(n -> n instanceof ClassOrInterfaceDeclaration
@@ -134,33 +211,10 @@ public class ScopeImpl implements Scope {
                     .map(n -> (ClassOrInterfaceDeclaration) n).findAny().orElse(null);
             if (cid != null)
                 return new iClassVirtual(getChild(cid), cid);
+            //node.stream().filter(n -> n instanceof ClassOrInterfaceDeclaration).forEach(n -> System.out.println(n));
+            //throw new UnsupportedOperationException();
         }
-        if (node instanceof CompilationUnit) {
-            CompilationUnit cu = ((CompilationUnit) node);
-            ImportDeclaration id = cu.getImports().stream().filter(i -> {
-                if (i.isStatic())
-                    throw new UnsupportedOperationException();
-                try {
-                    String n = i.getNameAsString();
-                    log("[import] (%s) name=%s", i.toString().trim(), name);
-                    if (i.isAsterisk())
-                        clzForName(n + "." + name);
-                    else if (n.endsWith("." + name))
-                        clzForName(n);
-                    else
-                        return false;
-                    return true;
-                } catch (ClassNotFoundException e) {
-                    return false;
-                }
-            }).findFirst().orElse(null);
-            if (id != null) {
-                if (id.isAsterisk())
-                    return new iClassWrapped(this, clzForName(id.getNameAsString() + "." + name));
-                else
-                    return new iClassWrapped(this, clzForName(id.getNameAsString()));
-            }
-        }
+        //JavaFileiClassLoader loader = getClassLoader();
         if (node instanceof ClassOrInterfaceDeclaration) {
             ClassOrInterfaceDeclaration d = ((ClassOrInterfaceDeclaration) node);
             Optional<TypeParameter> tp = d.getTypeParameters().stream().filter(t -> t.getNameAsString().equals(name))
@@ -170,12 +224,12 @@ public class ScopeImpl implements Scope {
                 if (tb.size() != 1)
                     throw new UnsupportedOperationException();
                 ClassOrInterfaceType t = tb.get(0);
-                return findClass(t.getNameWithScope());
+                return findClassLocal(t.getNameWithScope());
             }
         }
         if (hasParent())
             return getParent().findClass(name);
-        return new iClassWrapped(this, clzForName(name));
+        throw new ClassNotFoundException(name);
     }
 
     public iClass findClass(Type name) throws ClassNotFoundException {
@@ -183,12 +237,25 @@ public class ScopeImpl implements Scope {
     }
 
     public iClass findClass(String name) throws ClassNotFoundException {
+        log("[findClass] %s", name);
         try {
-            return findClass2(name);
+            return findClassWTF(name, this::findClass);
         } catch (ClassNotFoundException e) {
-            throw e;
         } catch (Throwable t) {
             throw new RuntimeException(t);
         }
+        try {
+            return findClassLocal(name);
+        } catch (ClassNotFoundException e) {
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
+        try {
+            return findClassExt(name);
+        } catch (ClassNotFoundException e) {
+        } catch (Throwable t) {
+            throw new RuntimeException(t);
+        }
+        throw new ClassNotFoundException(name);
     }
 }

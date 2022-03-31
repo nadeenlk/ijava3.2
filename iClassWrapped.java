@@ -4,9 +4,15 @@ import java.util.stream.Stream;
 public class iClassWrapped extends iClass {
     Class<?> x;
 
-    public iClassWrapped(Scope parent, Class<?> x) {
+    protected iClassWrapped(Scope parent, Class<?> x) {
         super(parent, null);
         this.x = x;
+    }
+
+    static iClassWrapped from(Scope parent, Class<?> x) {
+        if (x.isArray())
+            return new iClassArrayWrapped(parent, new iClassWrapped(parent, x));
+        return new iClassWrapped(parent, x);
     }
 
     public String getName() {
@@ -37,7 +43,10 @@ public class iClassWrapped extends iClass {
     }
 
     public iClass getComponentType() {
-        return new iClassWrapped(getScope(), x.getComponentType());
+        Class<?> xx = x.getComponentType();
+        if (xx == null)
+            return null;
+        return iClassWrapped.from(getScope(), xx);
     }
 
     public iField getField(String name) throws Throwable {
@@ -59,7 +68,8 @@ public class iClassWrapped extends iClass {
     }
 
     public iConstructor[] getConstructors() {
-        return Stream.of(x.getConstructors()).map(c -> new iConstructorWrapped(getScope(), c)).toArray(iConstructor[]::new);
+        return Stream.of(x.getConstructors()).map(c -> new iConstructorWrapped(getScope(), c))
+                .toArray(iConstructor[]::new);
     }
 
     public iObject newArray(int[] dimensions) {

@@ -8,7 +8,7 @@ public class scopes {
             {
                 int z = 3;
                 {
-                    System.out.printf("x=%d y=%d z=%d\n", x, y, z);
+                    //System.out.printf("x=%d y=%d z=%d\n", x, y, z);
                 }
             }
         }

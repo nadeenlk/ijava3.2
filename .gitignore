@@ -1,1 +1,2 @@
 *.class
+!tests/hello.class

@@ -9,7 +9,7 @@ public class iFieldWrapped extends iField {
     }
 
     public iClass getType() {
-        return new iClassWrapped(getScope(), x.getType());
+        return iClassWrapped.from(getScope(), x.getType());
     }
 
     @Override

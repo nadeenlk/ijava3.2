@@ -1,7 +1,7 @@
 
 public class iClassArrayWrapped extends iClassWrapped {
-    public iClassArrayWrapped(Scope s, iClassWrapped x) {
-        super(s, x.x);
+    public iClassArrayWrapped(Scope parent, iClassWrapped x) {
+        super(parent, x.x);
     }
 
     @Override

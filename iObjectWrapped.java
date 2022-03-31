@@ -14,7 +14,7 @@ public class iObjectWrapped extends iObject {
     }
 
     public iClass getClazz() {
-        return new iClassWrapped(getScope(), x.getClass());
+        return iClassWrapped.from(getScope(), x.getClass());
     }
 
     public iObjectWrapped asWrapped() {

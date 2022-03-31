@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 public class generic_args {
     public static void main(String[] args) {
+        System.out.println(Arrays.toString(args));
         System.out.println(Arrays.class.getSimpleName());
         test_clz<Object> z = new test_clz<Object>();
         z.test((Object) "lol");

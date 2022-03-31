@@ -9,7 +9,7 @@ public class iArrayWrapped extends iObjectWrapped {
 
     @Override
     public iClass asClass() throws Throwable {
-        return new iClassArrayWrapped(getScope(), new iClassWrapped(getScope(), x.getClass()));
+        return new iClassArrayWrapped(getScope(), iClassWrapped.from(getScope(), x.getClass()));
     }
 
     @Override

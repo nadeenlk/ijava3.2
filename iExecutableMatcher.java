@@ -24,6 +24,7 @@ public class iExecutableMatcher {
     public static boolean getExecutableMatchesImpl(boolean isVarArgs, iClass[] dst, iClass[] src) {
         if (isVarArgs) {
             // if (src.length < dst.length - 1)return false;
+            int n = dst.length - 1;
             for (int i = 0; i < dst.length - 1; i++) {
                 if (!isAssignableFrom(dst[i], src[i]))
                     return false;
@@ -44,8 +45,18 @@ public class iExecutableMatcher {
         }
     }
 
-    public static boolean isAssignableFrom(iClass dst, iClass src) {
+    public static boolean isAssignableFrom2(iClass dst, iClass src) {
+        /*if (src instanceof iClassArrayWrapped && dst instanceof iClassArrayWrapped) {
+            return isAssignableFrom(dst.getComponentType(), src.getComponentType());
+        }*/
         return Primitives.isAssignable(dst, src) || dst.isAssignableFrom(src);
+    }
+
+    public static boolean isAssignableFrom(iClass dst, iClass src) {
+        //System.out.printf("[isAssignableFrom] %s %s (%s)\n", dst, src);
+        boolean v = isAssignableFrom2(dst, src);
+        //System.out.printf("[isAssignableFrom] %s %s (%s)\n", dst, src, v);
+        return v;
     }
 
     public static iExecutable getExecutable(Scope scope, iClass c, String n, iClass[] cx) {
