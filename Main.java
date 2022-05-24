@@ -66,7 +66,7 @@ public class Main {
         System.out.println(" ijava tests\\hello.class tests.hello");
         System.out.println(" ijava tests\\hello.jar tests.hello");
         System.out.println();
-        System.out.println("Nadeen Udantha udanthan@gmail.com");
+        System.out.println("Nadeen Udantha me@nadeen.lk");
         System.out.println();
         System.exit(0);
     }

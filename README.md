@@ -22,4 +22,4 @@ eg:
 dependencies:
   JavaParser https://github.com/javaparser/javaparser (included)
 
-Nadeen Udantha udanthan@gmail.com
+Nadeen Udantha me@nadeen.lk
